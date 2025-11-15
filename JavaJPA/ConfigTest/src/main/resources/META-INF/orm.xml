@@ -1,0 +1,51 @@
+<entity-mappings xmlns="https://jakarta.ee/xml/ns/persistence/orm"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	version="3.1">
+
+	 <entity class="app.tourism.data.EmployeeEntity">
+        <table name="Employee" />
+
+        <attributes>
+            <id name="empno">
+                <column name="empno"/>
+            </id>
+
+            <basic name="ename">
+                <column name="ename"/>
+            </basic>
+
+            <basic name="sal">
+                <column name="sal"/>
+            </basic>
+
+            <basic name="comm">
+                <column name="comm"/>
+            </basic>
+
+            <many-to-one name="dept">
+                <join-column name="deptno"/>
+            </many-to-one>
+        </attributes>
+    </entity>
+
+    <entity class="app.tourism.data.DeptEntity">
+        <table name="Dept"/>
+
+        <attributes>
+            <id name="deptno">
+                <column name="deptno"/>
+            </id>
+
+            <basic name="dname">
+                <column name="dname"/>
+            </basic>
+
+            <basic name="location">
+                <column name="loc"/>
+            </basic>
+        </attributes>
+    </entity>
+
+
+</entity-mappings>
+
