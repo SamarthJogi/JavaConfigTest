@@ -1,0 +1,80 @@
+public class Customer {
+    public int id;
+    public String name;
+
+    public Customer(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+}
+------
+public class Product {
+public class ProductOrder {
+    public int productId;
+    public double price;
+    public int stock;
+
+    public ProductOrder(int productId, double price, int stock) {
+        this.productId = productId;
+        this.price = price;
+        this.stock = stock;
+    }
+}
+
+--------
+  
+-------
+
+import javax.servlet.http.*;
+import javax.servlet.*;
+import java.io.*;
+import java.util.*;
+
+public class ProductOrderServlet extends HttpServlet {
+
+    static List<ProductOrder> orders = new ArrayList<>();
+
+    public void init() {
+        orders.add(new ProductOrder(101, 500.0, 10));
+        orders.add(new ProductOrder(101, 500.0, 7));
+        orders.add(new ProductOrder(102, 800.0, 5));
+    }
+
+    protected void doGet(HttpServletRequest req, HttpServletResponse res)
+            throws IOException {
+
+        res.setContentType("application/json");
+        PrintWriter out = res.getWriter();
+        String pid = req.getParameter("pid");
+
+        out.print("[");
+        boolean first = true;
+
+        for (ProductOrder o : orders) {
+            if (pid == null || o.productId == Integer.parseInt(pid)) {
+                if (!first) out.print(",");
+                out.print("{\"productId\":" + o.productId +
+                          ",\"price\":" + o.price +
+                          ",\"stock\":" + o.stock + "}");
+                first = false;
+            }
+        }
+        out.print("]");
+    }
+
+    protected void doPost(HttpServletRequest req, HttpServletResponse res)
+            throws IOException {
+
+        int pid = Integer.parseInt(req.getParameter("pid"));
+        double price = Double.parseDouble(req.getParameter("price"));
+        int stock = Integer.parseInt(req.getParameter("stock"));
+
+        orders.add(new ProductOrder(pid, price, stock));
+        res.getWriter().print("Product Created");
+    }
+}
+  
+-----
+
+  
+
