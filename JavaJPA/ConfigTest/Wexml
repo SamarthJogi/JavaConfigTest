@@ -1,0 +1,127 @@
+<web-app>
+
+    <servlet>
+        <servlet-name>productOrder</servlet-name>
+        <servlet-class>ProductOrderServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>productOrder</servlet-name>
+        <url-pattern>/product-orders</url-pattern>
+    </servlet-mapping>
+
+</web-app>
+--------
+frontend
+ └── src
+     ├── index.js
+     ├── App.js
+     ├── ProductSearch.js
+     └── ProductList.js
+-------
+//index.js
+import React from "react";
+import ReactDOM from "react-dom/client";
+import App from "./App";
+
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(<App />);
+
+-----
+//App.js
+
+import React, { useState } from "react";
+import ProductSearch from "./ProductSearch";
+import ProductList from "./ProductList";
+
+function App() {
+
+  const [orders, setOrders] = useState([]);
+
+  function searchProduct(pid) {
+    fetch(`http://localhost:8080/ProductApp/product-orders?pid=${pid}`)
+      .then(res => res.json())
+      .then(data => setOrders(data));
+  }
+
+  function addProduct(order) {
+    fetch("http://localhost:8080/ProductApp/product-orders", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: `pid=${order.pid}&price=${order.price}&stock=${order.stock}`
+    }).then(() => searchProduct(order.pid));
+  }
+
+  return (
+    <div>
+      <h2>Sales Order Processing</h2>
+      <ProductSearch searchProduct={searchProduct} addProduct={addProduct} />
+      <ProductList orders={orders} />
+    </div>
+  );
+}
+
+export default App;
+
+-------
+//ProductSearch.js
+
+import React, { useState } from "react";
+
+function ProductSearch({ searchProduct, addProduct }) {
+
+  const [pid, setPid] = useState("");
+  const [price, setPrice] = useState("");
+  const [stock, setStock] = useState("");
+
+  return (
+    <div>
+      <input placeholder="Product ID"
+             onChange={e => setPid(e.target.value)} />
+      <button onClick={() => searchProduct(pid)}>
+        Search Orders
+      </button>
+
+      <br /><br />
+
+      <input placeholder="Product ID"
+             onChange={e => setPid(e.target.value)} />
+      <input placeholder="Price"
+             onChange={e => setPrice(e.target.value)} />
+      <input placeholder="Stock"
+             onChange={e => setStock(e.target.value)} />
+
+      <button onClick={() =>
+        addProduct({ pid, price, stock })
+      }>
+        Create Product
+      </button>
+    </div>
+  );
+}
+
+export default ProductSearch;
+
+------
+
+//ProductList.js
+import React from "react";
+
+function ProductList({ orders }) {
+  return (
+    <ul>
+      {orders.map((o, i) => (
+        <li key={i}>
+          Product ID: {o.productId},
+          Price: {o.price},
+          Stock: {o.stock}
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+export default ProductList;
+
+
+
