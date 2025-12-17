@@ -1,0 +1,66 @@
+Section A
+1. select ename,sal *0.12 as bonus from emp;
+2. select * from emp where mgr is not null and hiredate  between '2018-01-01' and '2018-12-31' ;
+3. select * from emp where ename like 'T%'
+4. select ename from emp where mgr is not null and deptno !=30;
+5.select ename as NAME , empno as NUMBER from emp;
+6. select * from emp where comm > 400;
+7.  select * from emp where ename like '%R' and sal between 1000 and 4500;
+8. select * from emp where ename like '__L%';
+9.select e.ename, e.sal , d.dname, d.loc from dept d left  join emp e on e.deptno = d.deptno;
+10. select e.ename ,e.sal ,e.mgr from emp e where e.hiredate < (select f.hiredate from emp f where f.empno = e.mgr);
+11. select instr(ename ,'R') from emp;
+12.select e.ename,d.dname,d.loc from emp e inner join dept d on e.deptno = d.deptno;
+13.select * from emp where comm > (sal *0.20);
+14. select * from emp where job = "manager" or (job="clerk" and deptno = 10);
+15.select * from emp where (job = "manager" and deptno = 10) or (job="clerk" and deptno = 20);
+16.select * from emp where (job = "manager" and deptno = 10) or (job="clerk" and deptno = 20) order by ename;
+17. select * from emp e where sal > (select avg(sal) from emp f where f.deptno = e.deptno);
+18. select now() as currentdatetime;
+19. select ename,sal,deptno from emp order by ename;
+
+20.  create table account (
+ accno int primary key not null,
+ accHolderName varchar(50) not null,
+ city varchar(20) default 'mumbai' check (city in('banglore' , 'chennai','mumbai')), 
+telephone_number char(10),
+balance decimal(10,2) check (balance > 100000) );
+
+21. 
+insert into account value (101, "Person1" , "banglore", "9992220301", 210000.00);
+ insert into account(accno,accHolderName,telephone_number,balance) value (102, "Person1" , "9344222031", 510000.00);
+insert into account value (103, "Person3" , "chennai", "8892220301", 280000.00);
+
+22.
+select e.ename, e.sal , e.empno, f.empno, e.deptno from emp e join emp f where e.empno = f.empno;
+
+23. 
+create view alldata as select e.* , d.loc, d.dname from emp e inner join dept d where e.deptno = d.deptno;
+
+
+24. update account set city = "banglore" where accno = 101;
+25. delete from account where accno = 101;
+
+Section B
+
+1.function
+      delimiter $$
+      create function calc_interest(principle int,rate int, period int)
+      returns int  
+      deterministic 
+      begin
+      return (principle * rate* period)/100;
+      end $$
+
+    delimiter ;
+   SELECT calc_interest(1000, 10, 2);
+
+2.  procedure
+     delimiter //
+     create procedure deptwise (in deptid int)
+     begin
+    select avg(sal) as averageSal, min(sal) as minSal, max(sal) as maxSal from emp where deptno = deptid;
+     end //
+
+  delimiter ;
+ call deptwise(10);
