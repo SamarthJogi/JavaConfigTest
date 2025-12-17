@@ -1,0 +1,332 @@
+
+You said:
+DocScanner 17 Dec 2025 9-49 am.pdf
+PDF
+Give me answers for my sql
+ChatGPT said:
+Below are direct SQL answers only (no explanation), based on standard EMP / DEPT (Oracle-style) tables, exactly matching the questions in your uploaded paper 
+DocScanner 17 Dec 2025 9-49 am
+
+.
+
+Set-1 : Section-A
+1
+
+SELECT ename, sal*0.12 AS bonus FROM emp;
+2
+
+SELECT ename FROM emp WHERE job='MANAGER' AND EXTRACT(YEAR FROM hiredate)=2018;
+3
+
+SELECT ename FROM emp WHERE ename LIKE 'T%';
+4
+
+SELECT ename FROM emp WHERE job='MANAGER' AND deptno<>30;
+5
+
+SELECT empno AS NUMBER, ename AS NAME FROM emp;
+6
+
+SELECT ename FROM emp WHERE comm>400;
+7
+
+SELECT ename FROM emp WHERE ename LIKE '%R%' AND sal BETWEEN 1000 AND 4500;
+8
+
+SELECT ename FROM emp WHERE SUBSTR(ename,3,1)='L';
+9
+
+SELECT e.ename, e.sal, d.dname, d.loc
+FROM emp e LEFT OUTER JOIN dept d
+ON e.deptno=d.deptno;
+10
+
+SELECT e.ename, e.sal, m.ename AS mgr
+FROM emp e JOIN emp m
+ON e.mgr=m.empno
+WHERE e.sal>m.sal;
+11
+
+SELECT ename, INSTR(ename,'R') FROM emp WHERE ename LIKE '%R%';
+12
+
+SELECT DISTINCT d.dname, d.loc
+FROM dept d JOIN emp e
+ON d.deptno=e.deptno;
+13
+
+SELECT ename FROM emp WHERE comm > sal*0.20;
+14
+
+SELECT * FROM emp WHERE job='MANAGER'
+UNION
+SELECT * FROM emp WHERE job='CLERK' AND deptno=10;
+15
+
+SELECT * FROM emp WHERE job='MANAGER' AND deptno=10
+UNION
+SELECT * FROM emp WHERE job='CLERK' AND deptno=20;
+16
+
+SELECT * FROM emp WHERE job='MANAGER' AND deptno=10
+UNION
+SELECT * FROM emp WHERE job='CLERK' AND deptno=20
+ORDER BY ename;
+17
+
+SELECT * FROM emp
+WHERE sal >
+(SELECT AVG(sal) FROM emp WHERE deptno=emp.deptno);
+18
+
+SELECT SYSDATE FROM dual;
+19
+
+SELECT ename, sal, deptno FROM emp ORDER BY ename;
+20
+
+CREATE TABLE account(
+accno INT PRIMARY KEY,
+accHoldername VARCHAR2(50) NOT NULL,
+city VARCHAR2(20) DEFAULT 'mumbai'
+CHECK (city IN ('banglore','chennai','mumbai')),
+telephone_number CHAR(10),
+balance DECIMAL(10,2) CHECK (balance>10000)
+);
+21
+
+INSERT INTO account VALUES (1,'A','mumbai','1111111111',15000);
+INSERT INTO account VALUES (2,'B','banglore','2222222222',20000);
+INSERT INTO account VALUES (3,'C','chennai','3333333333',18000);
+INSERT INTO account VALUES (4,'D','mumbai','4444444444',25000);
+24
+
+UPDATE account SET city='banglore' WHERE accno=1;
+25
+
+DELETE FROM account WHERE accno=1;
+Section-B
+1 Function
+
+CREATE OR REPLACE FUNCTION calc_interest(p NUMBER,r NUMBER,t NUMBER)
+RETURN NUMBER IS
+BEGIN
+RETURN (p*r*t)/100;
+END;
+/
+2 Procedure
+
+CREATE OR REPLACE PROCEDURE dept_salary(dno NUMBER)
+IS
+BEGIN
+SELECT AVG(sal), MIN(sal), MAX(sal)
+FROM emp WHERE deptno=dno;
+END;
+/
+If you want MySQL version or only answers in numbered list format, say it.
+
+
+Sources
+You said:
+For question 2 I wanna check hiredate between 1st  January 2018 to 31st dec 
+ChatGPT said:
+Here’s the correct and strict SQL for Q2, using an explicit date range. This is how it should be written—no shortcuts, no ambiguity.
+
+Oracle SQL (recommended)
+SELECT ename
+FROM emp
+WHERE job = 'MANAGER'
+AND hiredate BETWEEN DATE '2018-01-01' AND DATE '2018-12-31';
+Alternative (also Oracle, old-style but valid)
+SELECT ename
+FROM emp
+WHERE job = 'MANAGER'
+AND hiredate BETWEEN
+TO_DATE('01-01-2018','DD-MM-YYYY')
+AND TO_DATE('31-12-2018','DD-MM-YYYY');
+Brutal truth
+EXTRACT(YEAR FROM hiredate)=2018 works, but it’s lazy and inefficient.
+
+BETWEEN with proper DATE literals is cleaner, faster, and index-friendly.
+
+This is exactly what examiners expect in a DBT lab exam.
+
+If you want the MySQL version, ask—but don’t mix dialects in exams.
+
+You said:
+CREATE TABLE account(
+accno INT PRIMARY KEY,
+accHoldername VARCHAR2(50) NOT NULL,
+city VARCHAR2(20) DEFAULT 'mumbai'
+CHECK (city IN ('banglore','chennai','mumbai')),
+telephone_number CHAR(10),
+balance DECIMAL(10,2) CHECK (balance>100
+00)
+);
+
+
+
+
+This is giving me errors
+ChatGPT said:
+Yes, it should give errors. Your statement has real mistakes, not Oracle being annoying. I’ll be blunt and precise.
+
+❌ What’s wrong in your SQL
+1. You literally broke a number
+CHECK (balance>100
+00)
+That newline splits 10000 into 100 and 00.
+SQL doesn’t magically fix sloppy typing.
+
+✅ Must be:
+
+CHECK (balance > 10000)
+2. INT is not Oracle-native
+Oracle accepts it sometimes as a synonym, sometimes not (depends on version/settings).
+
+Stop relying on luck.
+
+Use:
+
+NUMBER
+3. DECIMAL works, but NUMBER is safer in Oracle
+Again, don’t gamble in exams.
+
+✅ Correct, clean, exam-safe Oracle SQL
+CREATE TABLE account (
+  accno NUMBER PRIMARY KEY,
+  accHoldername VARCHAR2(50) NOT NULL,
+  city VARCHAR2(20) DEFAULT 'mumbai'
+    CHECK (city IN ('banglore','chennai','mumbai')),
+  telephone_number CHAR(10),
+  balance NUMBER(10,2) CHECK (balance > 10000)
+);
+🔥 Reality check (important)
+Oracle is strict → formatting mistakes = syntax errors
+
+Exams don’t care about “almost correct”
+
+One broken literal (100 00) is enough to fail the command
+
+If you want:
+
+MySQL version
+
+INSERT statements tested against constraints
+
+Why DEFAULT + CHECK behaves the way it does
+
+Say it.
+
+You said:
+I am using it on my sql
+ChatGPT said:
+Good you said it clearly — MySQL, not Oracle.
+Your query fails because you mixed Oracle syntax with MySQL. MySQL doesn’t forgive that.
+
+Let’s be blunt and fix it properly.
+
+❌ Why your query FAILS in MySQL
+1️⃣ VARCHAR2 ❌
+MySQL does NOT support VARCHAR2.
+That’s Oracle-only.
+
+2️⃣ INT is fine, but constraints placement matters
+MySQL is picky about syntax order.
+
+3️⃣ Your number is still broken
+balance>100
+00
+That alone is enough to throw an error.
+
+4️⃣ CHECK works only in MySQL 8.0.16+
+Older versions silently ignore CHECK.
+
+✅ Correct MySQL version (MySQL 8+)
+CREATE TABLE account (
+  accno INT PRIMARY KEY,
+  accHoldername VARCHAR(50) NOT NULL,
+  city VARCHAR(20) DEFAULT 'mumbai',
+  telephone_number CHAR(10),
+  balance DECIMAL(10,2),
+  CHECK (city IN ('banglore','chennai','mumbai')),
+  CHECK (balance > 10000)
+);
+🔥 If your MySQL version is OLD (very common)
+Then CHECK is useless. You MUST use ENUM instead.
+
+✅ Exam-safe, real-world MySQL solution
+CREATE TABLE account (
+  accno INT PRIMARY KEY,
+  accHoldername VARCHAR(50) NOT NULL,
+  city ENUM('banglore','chennai','mumbai') DEFAULT 'mumbai',
+  telephone_number CHAR(10),
+  balance DECIMAL(10,2) CHECK (balance > 10000)
+);
+⚠️ Hard truth you need to remember
+Oracle SQL ≠ MySQL SQL
+
+VARCHAR2 → Oracle only
+
+MySQL is forgiving, exams are not
+
+If examiner says MySQL, write MySQL syntax only
+
+If you want, I can:
+
+Convert all your earlier answers to MySQL
+
+Give INSERT statements that won’t fail
+
+Tell you which version your MySQL actually is
+
+Say the word.
+
+You said:
+21) Give an example of Self join Query
+22) Create a view  based on emp and dept table consisting of all columns from both the tables
+23) If above view read only. Give Example of Read Only view query.
+
+
+In mysql
+ChatGPT said:
+You’re asking basic-but-often-messed-up SQL, so I’ll be straight and precise.
+All answers below are valid MySQL syntax. No Oracle crap mixed in.
+
+21) Example of SELF JOIN (MySQL)
+Classic use case: employee and their manager (same table joined with itself).
+
+SELECT e.empno, e.ename AS employee, m.ename AS manager
+FROM emp e
+JOIN emp m
+ON e.mgr = m.empno;
+Why this is a self join:
+Same table emp used twice with aliases (e, m).
+If you don’t use aliases → query is impossible.
+
+22) Create a VIEW using emp and dept (ALL columns)
+Be careful:
+
+SELECT * in views is lazy and risky, but exams allow it.
+
+Proper join is mandatory.
+
+CREATE VIEW emp_dept_view AS
+SELECT e.*, d.*
+FROM emp e
+JOIN dept d
+ON e.deptno = d.deptno;
+This view contains all columns from emp + dept.
+
+23) READ ONLY VIEW (MySQL)
+MySQL does NOT support WITH READ ONLY like Oracle.
+So stop thinking Oracle here.
+
+✅ Correct MySQL way (using ALGORITHM = TEMPTABLE)
+This forces the view to be non-updatable.
+
+CREATE ALGORITHM = TEMPTABLE VIEW emp_dept_readonly AS
+SELECT e.*, d.*
+FROM emp e
+JOIN dept d
+ON e.deptno = d.deptno;
